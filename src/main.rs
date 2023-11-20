@@ -1,9 +1,7 @@
 use actix_web::{web, App, HttpRequest, HttpServer, Responder};
 use sea_orm::{Database, DbErr, ConnectionTrait, DbBackend, Statement, DatabaseConnection};
 
-use dotenv::dotenv;
-
-
+use rdotenv::DotEnv;
 
 
 async fn connect_to_database(DATABASE_URL: &str) -> Result<DatabaseConnection, DbErr>{
@@ -79,7 +77,7 @@ async fn perform_action(request: HttpRequest) -> impl Responder {
             format!("Total products {:?}:", &total_products)
         }
         "update" => {
-            let product_id = request.match_info().get("product_id").unwrap();
+            let product_id = request.match_info().get("product_idu").unwrap();
             let price = request.match_info().get("price").unwrap();
             let price: f64 = price.parse().unwrap();
             let product_id: i32 = product_id.parse().unwrap();
@@ -109,7 +107,10 @@ async fn perform_action(request: HttpRequest) -> impl Responder {
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
 
-    dotenv().ok();
+    let mut env = DotEnv::new();
+    env.load();
+
+    println!("{}", env.get("DATABASE_URL"));
     
     let DATABASE_URL = "postgres://rust2:123456@localhost/test_rust";
     let _DB_NAME = "test_rust";
